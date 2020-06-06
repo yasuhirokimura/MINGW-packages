@@ -1,0 +1,43 @@
+# Maintainer: Yasuhiro Kimura <yasu@utahime.org>
+
+_realname=nkf
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=2.1.5
+pkgrel=1
+pkgdesc='Network Kanji Filter'
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
+url='https://osdn.net/projects/nkf/'
+license=('custom')
+makedepends=("libiconv"
+             "${MINGW_PACKAGE_PREFIX}-cc")
+source=(https://osdn.net/dl/nkf/${_realname}-${pkgver}.tar.gz
+        'mingw-local.patch'
+        'LICENSE')
+sha256sums=('d1a7df435847a79f2f33a92388bca1d90d1b837b1b56523dcafc4695165bad44'
+            '173052e7eb527bbe54a81eea7fe3c3302e11b85bc6d2adb60a816d7773646fad'
+            '361183549590b512d3a37687a59835091e07b4518d5bc1ba7a834a60002f53ca')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  patch -p1 -i "${srcdir}/mingw-local.patch"
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  make
+}
+
+package() {
+  pushd "${srcdir}/${_realname}-${pkgver}"
+  make prefix="${MINGW_PREFIX}" DESTDIR="${pkgdir}" install
+  popd
+  install -D -m 644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+}
+
+# Local Variables:
+# mode: Shell-Script
+# sh-basic-offset: 2
+# indent-tabs-mode: nil
+# End:
